@@ -3,52 +3,59 @@
 #include <string.h>
 #include <unistd.h>
 #include <inttypes.h>
+#include <string>
 
 
 /* Global objects */
 static struct iio_buffer *device_buffer = NULL;
-static struct iio_channel *channel = NULL;
-static struct iio_context *local_ctx = NULL;
-static struct iio_device *dev = NULL;
+static struct iio_channel *m_channel_accel_x = NULL;
+static struct iio_context *m_network_context = NULL;
+static struct iio_context * m_object_context = NULL;
+static struct iio_device *m_dev = NULL;
 static const char *dev_name = NULL;
 static const char *channel_id = NULL;
-static uint8_t *in_buf;
+static  int32_t *in_buf;
 
 
 int main()
 {
 
         /* Getting nwtowk iio device context */
-        local_ctx = iio_create_network_context("127.0.0.1");
+        std::string uri = "ip:127.0.0.1";
+        m_network_context = iio_create_context_from_uri(uri.c_str());
+        m_object_context =  iio_context_clone(m_network_context);
         //local_ctx = iio_create_context_from_uri("ip:127.0.0.1");
-        dev = iio_context_get_device(local_ctx, 0);
-        dev_name = iio_device_get_name(dev);
-        channel = iio_device_get_channel(dev, 0);
+        m_dev = iio_context_find_device(m_object_context, "adis16505");
+        dev_name = iio_device_get_name(m_dev);
+        m_channel_accel_x = iio_device_find_channel(m_dev, "accel_x", false);
 
-        iio_channel_enable(channel);
+        iio_channel_enable(m_channel_accel_x);
         //if (iio_channel_is_enabled(channel))
         //        return -1;
 
-        uint32_t sample_size = 3;
+        uint32_t sample_size = 4;
         uint32_t buffer_length = 1;
 
         struct iio_buffer *device_buffer =
-                iio_device_create_buffer(dev, buffer_length, false);
+                iio_device_create_buffer(m_dev, buffer_length, false);
 
         if (!device_buffer)
                 return -1;
 
+        int count =0;
+
         while (true) {
-               // ssize_t nbytes_rx = iio_buffer_refill(device_buffer);
+                ssize_t nbytes_rx = iio_buffer_refill(device_buffer);
+                count++;
+                if (nbytes_rx <= 0) {
+                        printf("Error refilling buf %d\n", (int) nbytes_rx);
+                        return -1;
+                }
 
-               // if (nbytes_rx <= 0) {
-               //         printf("Error refilling buf %d\n", (int) nbytes_rx);
-               //         return -1;
-               // }
-
-                in_buf = (uint8_t*)malloc(sample_size * buffer_length);
-                iio_channel_read(channel, device_buffer, in_buf, sample_size * buffer_length);
-                printf("%" PRIi32 "\n", ((int32_t *)in_buf));
+                in_buf = (int32_t*)malloc(sample_size * buffer_length);
+                memset(in_buf, 0,sample_size * buffer_length*sizeof(int32_t));
+                iio_channel_read(m_channel_accel_x, device_buffer, in_buf, sample_size * buffer_length);
+                printf("%d %d %d %d   count= %d \n", in_buf[0], in_buf[1] , in_buf[2], in_buf[3], count);
                 free(in_buf);
 
         }
