@@ -16,6 +16,7 @@ static const char *dev_name = NULL;
 static const char *channel_id = NULL;
 static  int32_t *in_buf;
 
+static struct iio_channel **channels;
 
 int main()
 {
@@ -29,9 +30,43 @@ int main()
         dev_name = iio_device_get_name(m_dev);
         m_channel_accel_x = iio_device_find_channel(m_dev, "accel_x", false);
 
+        int channel_count = 0;
+        printf("* Initializing IIO streaming channels:\n");
+
+        for (int i = 0; i < iio_device_get_channels_count(m_dev); ++i) {
+            struct iio_channel *chn = iio_device_get_channel(m_dev, i);
+            if (iio_channel_is_scan_element(chn)) {
+                printf("%s chn\n", iio_channel_get_id(chn));
+                channel_count++;
+            }
+        }
+
+
+        channels = (iio_channel **)calloc(channel_count, sizeof * channels );
+
+
+        for (int i = 0; i < channel_count; ++i) {
+            struct iio_channel *chn = iio_device_get_channel(m_dev, i);
+            if (iio_channel_is_scan_element(chn))
+                channels[i] = chn;
+        }
+
+        for (int i = 0; i < channel_count; ++i)
+        {
+                iio_channel_enable(channels[i]);
+                if (iio_channel_is_enabled(channels[i]) == true)
+                {
+                    printf("channel_enabled %d \n", i);
+                }
+        }
+
+
         iio_channel_enable(m_channel_accel_x);
-        //if (iio_channel_is_enabled(channel))
-        //        return -1;
+        if (iio_channel_is_enabled(m_channel_accel_x)  ==true)
+        {
+            printf(" channel_enabled accel x \n");
+        }
+
 
         uint32_t sample_size = 4;
         uint32_t buffer_length = 1;
@@ -54,7 +89,7 @@ int main()
 
                 in_buf = (int32_t*)malloc(sample_size * buffer_length);
                 memset(in_buf, 0,sample_size * buffer_length*sizeof(int32_t));
-                iio_channel_read(m_channel_accel_x, device_buffer, in_buf, sample_size * buffer_length);
+                iio_channel_read(channels[0], device_buffer, in_buf, sample_size * buffer_length);
                 printf("%d %d %d %d   count= %d \n", in_buf[0], in_buf[1] , in_buf[2], in_buf[3], count);
                 free(in_buf);
 
