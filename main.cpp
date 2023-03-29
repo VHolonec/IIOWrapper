@@ -17,6 +17,7 @@ static const char *channel_id = NULL;
 static  int32_t *in_buf;
 
 static struct iio_channel **channels;
+static struct iio_context *ctx;
 
 int main()
 {
@@ -25,7 +26,9 @@ int main()
         std::string uri = "ip:127.0.0.1";
         m_network_context = iio_create_context_from_uri(uri.c_str());
         m_object_context =  iio_context_clone(m_network_context);
-        //local_ctx = iio_create_context_from_uri("ip:127.0.0.1");
+
+        //ctx= iio_create_local_context();
+
         m_dev = iio_context_find_device(m_object_context, "adis16505");
         dev_name = iio_device_get_name(m_dev);
         m_channel_accel_x = iio_device_find_channel(m_dev, "accel_x", false);
@@ -75,7 +78,10 @@ int main()
                 iio_device_create_buffer(m_dev, buffer_length, false);
 
         if (!device_buffer)
+        {
+             printf(" device_buffer err \n");
                 return -1;
+        }
 
         int count =0;
 
