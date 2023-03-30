@@ -89,6 +89,8 @@ int main()
 
         while (true) {
 
+            sleep(1);
+
             auto started = std::chrono::high_resolution_clock::now();
                 //device_buffer->mask = buffer_mask;
                 ssize_t nbytes_rx = iio_buffer_refill(device_buffer);
@@ -105,6 +107,8 @@ int main()
                     int32_t in_buf=12;
                 //memset(in_buf, 0,sample_size * buffer_length*sizeof(uint8_t));
                 ssize_t scr = iio_channel_read(channels[i], device_buffer, &in_buf, 4);
+
+
 
                 printf("iio_channel_read size %d\n", (int) scr);
 
