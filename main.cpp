@@ -54,7 +54,7 @@ int main()
                 channels[i] = chn;
         }
 
-        iio_channel_enable(channels[0]);
+        iio_channel_enable(channels[6]);
 //        for (int i = 0; i < channel_count; ++i)
 //        {
 //                iio_channel_enable(channels[i]);
@@ -99,7 +99,7 @@ int main()
 
                 in_buf = (int32_t*)malloc(sample_size * buffer_length);
                 memset(in_buf, 0,sample_size * buffer_length*sizeof(int32_t));
-                iio_channel_read(channels[0], device_buffer, in_buf, sample_size * buffer_length);
+                iio_channel_read(channels[6], device_buffer, in_buf, sample_size * buffer_length);
                 printf("%d %d %d %d   count= %d \n", in_buf[0], in_buf[1] , in_buf[2], in_buf[3], count);
                 free(in_buf);
 
