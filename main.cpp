@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <inttypes.h>
 #include <string>
-
+#include <chrono>
 
 /* Global objects */
 static struct iio_buffer *device_buffer = NULL;
@@ -14,7 +14,7 @@ static struct iio_context * m_object_context = NULL;
 static struct iio_device *m_dev = NULL;
 static const char *dev_name = NULL;
 static const char *channel_id = NULL;
-static  int32_t *in_buf;
+//static  int32_t *in_buf;
 
 static struct iio_channel **channels;
 static struct iio_context *ctx;
@@ -55,14 +55,14 @@ int main()
         }
 
         iio_channel_enable(channels[6]);
-//        for (int i = 0; i < channel_count; ++i)
-//        {
-//                iio_channel_enable(channels[i]);
-//                if (iio_channel_is_enabled(channels[i]) == true)
-//                {
-//                    printf("channel_enabled %d \n", i);
-//                }
-//        }
+        for (int i = 0; i <= 7; ++i)
+        {
+                iio_channel_enable(channels[i]);
+                if (iio_channel_is_enabled(channels[i]) == true)
+                {
+                    printf("channel_enabled %d \n", i);
+                }
+        }
 
 
        // iio_channel_enable(m_channel_accel_x);
@@ -73,7 +73,7 @@ int main()
 
 
         uint32_t sample_size = 4;
-        uint32_t buffer_length = 8;
+        uint32_t buffer_length = 1;
          uint32_t buffer_mask = 1;
 
         struct iio_buffer *device_buffer =
@@ -88,6 +88,8 @@ int main()
         int count =0;
 
         while (true) {
+
+            auto started = std::chrono::high_resolution_clock::now();
                 //device_buffer->mask = buffer_mask;
                 ssize_t nbytes_rx = iio_buffer_refill(device_buffer);
                 printf("Refilling buf %d\n", (int) nbytes_rx);
@@ -97,11 +99,20 @@ int main()
                         return -1;
                 }
 
-                in_buf = (int32_t*)malloc(sample_size * buffer_length);
-                memset(in_buf, 0,sample_size * buffer_length*sizeof(int32_t));
-                iio_channel_read(channels[6], device_buffer, in_buf, sample_size * buffer_length);
-                printf("%d %d %d %d   count= %d \n", in_buf[0], in_buf[1] , in_buf[2], in_buf[3], count);
-                free(in_buf);
+                for(int i=0; i<= 7 ;i++)
+                {
+                //in_buf = (uint8_t*)malloc(sample_size * buffer_length);
+                    int32_t in_buf;
+                //memset(in_buf, 0,sample_size * buffer_length*sizeof(uint8_t));
+                iio_channel_read(channels[i], device_buffer, &in_buf, 4);
+
+                printf("i=%d in_buf=%d   count= %d \n",i, in_buf, count);
+                //free(in_buf);
+                }
+
+                auto done = std::chrono::high_resolution_clock::now();
+
+                printf("time=%d\n", std::chrono::duration_cast<std::chrono::microseconds>(done-started).count());
 
         }
         return 0;
