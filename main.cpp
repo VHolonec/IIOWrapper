@@ -102,9 +102,11 @@ int main()
                 for(int i=0; i<=6 ;i++)
                 {
                 //in_buf = (uint8_t*)malloc(sample_size * buffer_length);
-                    int32_t in_buf;
+                    int32_t in_buf=12;
                 //memset(in_buf, 0,sample_size * buffer_length*sizeof(uint8_t));
-                iio_channel_read(channels[i], device_buffer, &in_buf, 4);
+                ssize_t scr = iio_channel_read(channels[i], device_buffer, &in_buf, 4);
+
+                printf("iio_channel_read size %d\n", (int) scr);
 
                 printf("i=%d in_buf=%d   count= %d \n",i, in_buf, count);
                 //free(in_buf);
