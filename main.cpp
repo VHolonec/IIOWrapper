@@ -54,8 +54,8 @@ int main()
                 channels[i] = chn;
         }
 
-        iio_channel_enable(channels[6]);
-        for (int i = 0; i <= 7; ++i)
+        //iio_channel_enable(channels[6]);
+        for (int i = 0; i <= 6; ++i)
         {
                 iio_channel_enable(channels[i]);
                 if (iio_channel_is_enabled(channels[i]) == true)
@@ -99,7 +99,7 @@ int main()
                         return -1;
                 }
 
-                for(int i=0; i<= 7 ;i++)
+                for(int i=0; i<=6 ;i++)
                 {
                 //in_buf = (uint8_t*)malloc(sample_size * buffer_length);
                     int32_t in_buf;
