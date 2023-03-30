@@ -90,6 +90,7 @@ int main()
         while (true) {
                 //device_buffer->mask = buffer_mask;
                 ssize_t nbytes_rx = iio_buffer_refill(device_buffer);
+                printf("Refilling buf %d\n", (int) nbytes_rx);
                 count++;
                 if (nbytes_rx <= 0) {
                         printf("Error refilling buf %d\n", (int) nbytes_rx);
