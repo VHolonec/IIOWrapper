@@ -29,7 +29,9 @@ int main()
 
         ctx= iio_create_local_context();
 
-        m_dev = iio_context_find_device(ctx, "adis16505");
+         m_object_context =  iio_context_clone(ctx);
+
+        m_dev = iio_context_find_device(m_object_context, "adis16505");
         dev_name = iio_device_get_name(m_dev);
         //m_channel_accel_x = iio_device_find_channel(m_dev, "accel_x", false);
 
@@ -118,7 +120,7 @@ int main()
 
                 auto done = std::chrono::high_resolution_clock::now();
 
-                printf("time=%d\n", std::chrono::duration_cast<std::chrono::microseconds>(done-started).count());
+                printf("time=%ld\n", std::chrono::duration_cast<std::chrono::microseconds>(done-started).count());
 
         }
         return 0;
